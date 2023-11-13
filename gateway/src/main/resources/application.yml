@@ -4,17 +4,20 @@ server:
 spring:
   application:
     name: gateway
+  rabbitmq:
+    host: rabbitmq
+    port: 5672
+    username: guest
+    password: guest
   config:
     import: "optional:consul:"
   cloud:
     loadbalancer:
       ribbon:
-        # Not needed since we excluded the dependency
         enabled: false
     consul:
       enabled: true
       discovery:
-        # Get only services that are passing the health check
         query-passing: true
       config:
         data-key: application.yml
@@ -47,9 +50,13 @@ spring:
             retries: 3
             methods: GET,POST
 # Uncomment the configuration below if you want to enable route matching logs
+#logging:
+#  level:
+#    org.springframework.cloud.gateway.handler.predicate: trace
+
 logging:
   level:
-    org.springframework.cloud.gateway.handler.predicate: trace
+    org.springframework.amqp.rabbit.connection.CachingConnectionFactory: WARN
 
 service-lb-urls:
   multiplication: lb://multiplication

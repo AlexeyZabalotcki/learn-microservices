@@ -23,6 +23,8 @@ public class LeaderBoardController {
     @GetMapping
     public List<LeaderBoardRow> getLeaderBoard() {
         log.info("Retrieving leaderboard");
-        return leaderBoardService.getCurrentLeaderBoard();
+        List<LeaderBoardRow> currentLeaderBoard = leaderBoardService.getCurrentLeaderBoard();
+        log.info("Retrieving leaderboard currentLeaderBoard: {}", currentLeaderBoard);
+        return currentLeaderBoard;
     }
 }

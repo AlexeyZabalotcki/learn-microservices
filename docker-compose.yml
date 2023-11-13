@@ -5,11 +5,11 @@ services:
     image: challenges-frontend:latest
     build: ./challenges-frontend
     ports:
-      - '3000:80'
+      - '3000:3000'
 
   multiplication:
     image: multiplication:latest
-    build: multiplication
+    build: ./multiplication
     container_name: multiplication
     environment:
       - SPRING_CLOUD_CONSUL_HOST=consul
@@ -19,14 +19,14 @@ services:
         condition: service_started
       rabbitmq:
         condition: service_started
-#      consul-importer:
-#        condition: service_completed_successfully
+      consul-importer:
+        condition: service_completed_successfully
     networks:
       - microservices
 
   gamification:
     image: gamification:latest
-    build: gamification
+    build: ./gamification
     container_name: gamification
     environment:
       - SPRING_CLOUD_CONSUL_HOST=consul
@@ -36,14 +36,14 @@ services:
         condition: service_started
       rabbitmq:
         condition: service_started
-#      consul-importer:
-#        condition: service_completed_successfully
+      consul-importer:
+        condition: service_completed_successfully
     networks:
       - microservices
 
   gateway:
     image: gateway:latest
-    build: gateway
+    build: ./gateway
     container_name: gateway
     ports:
       - '8000:8000'
@@ -55,16 +55,30 @@ services:
     networks:
       - microservices
 
-#  consul-importer:
-#    image: consul-importer:latest
-#    build: ./consul
-#    depends_on:
-#      - consul-dev
-#    networks:
-#      - microservices
+  logs:
+    image: logs:latest
+    build: ./logs
+    container_name: logs
+    environment:
+      - SPRING_CLOUD_CONSUL_HOST=consul
+    depends_on:
+      rabbitmq:
+        condition: service_started
+      consul-importer:
+        condition: service_completed_successfully
+    networks:
+      - microservices
+
+  consul-importer:
+    image: consul-importer:latest
+    build: ./consul
+    depends_on:
+      - consul-dev
+    networks:
+      - microservices
 
   consul-dev:
-    image: consul:1.9
+    image: consul:1.15.4
     container_name: consul
     ports:
       - '8500:8500'
