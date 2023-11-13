@@ -1,6 +1,6 @@
 package com.specific.group.gamification.game.badgeprocessors;
 
-import com.specific.group.gamification.challenge.ChallengeSolvedDTO;
+import com.specific.group.gamification.challenge.ChallengeSolvedEvent;
 import com.specific.group.gamification.game.domain.BadgeType;
 import com.specific.group.gamification.game.domain.ScoreCard;
 import org.springframework.stereotype.Component;
@@ -15,7 +15,7 @@ public class FirstWonBadgeProcessor implements BadgeProcessor {
     public Optional<BadgeType> processForOptionalBadge(
             int currentScore,
             List<ScoreCard> scoreCardList,
-            ChallengeSolvedDTO solved) {
+            ChallengeSolvedEvent solved) {
         return scoreCardList.size() == 1 ?
                 Optional.of(BadgeType.FIRST_WON) : Optional.empty();
     }

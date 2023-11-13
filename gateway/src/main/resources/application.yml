@@ -1,0 +1,56 @@
+server:
+  port: 8000
+
+spring:
+  application:
+    name: gateway
+  config:
+    import: "optional:consul:"
+  cloud:
+    loadbalancer:
+      ribbon:
+        # Not needed since we excluded the dependency
+        enabled: false
+    consul:
+      enabled: true
+      discovery:
+        # Get only services that are passing the health check
+        query-passing: true
+      config:
+        data-key: application.yml
+        prefix: config
+        format: yaml
+        default-context: defaults
+    gateway:
+      routes:
+        - id: multiplication
+          uri: ${service-lb-urls.multiplication}
+          predicates:
+            - Path=/challenges/**,/attempts,/attempts/**,/users/**
+        - id: gamification
+          uri: ${service-lb-urls.gamification}
+          predicates:
+            - Path=/leaders
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "http://localhost:3000"
+            allowedHeaders:
+              - "*"
+            allowedMethods:
+              - "GET"
+              - "POST"
+              - "OPTIONS"
+      default-filters:
+        - name: Retry
+          args:
+            retries: 3
+            methods: GET,POST
+# Uncomment the configuration below if you want to enable route matching logs
+logging:
+  level:
+    org.springframework.cloud.gateway.handler.predicate: trace
+
+service-lb-urls:
+  multiplication: lb://multiplication
+  gamification: lb://gamification

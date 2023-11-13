@@ -1,6 +1,6 @@
 package com.specific.group.gamification.game;
 
-import com.specific.group.gamification.challenge.ChallengeSolvedDTO;
+import com.specific.group.gamification.challenge.ChallengeSolvedEvent;
 import com.specific.group.gamification.game.domain.BadgeType;
 import lombok.Value;
 
@@ -17,7 +17,7 @@ public interface GameService {
      * @param challenge the challenge data with user details, factors, etc.
      * @return a {@link GameResult} object containing the new score and badge cards obtained
      */
-    GameResult newAttemptForUser(ChallengeSolvedDTO challenge);
+    GameResult newAttemptForUser(ChallengeSolvedEvent challenge);
 
     @Value
     class GameResult {

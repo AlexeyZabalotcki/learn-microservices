@@ -1,6 +1,5 @@
 package com.specific.group.multiplication.challenge;
 
-import com.specific.group.multiplication.serviceclients.GamificationServiceClient;
 import com.specific.group.multiplication.user.User;
 import com.specific.group.multiplication.user.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,19 +25,17 @@ public class ChallengeServiceTest {
 
     @Mock
     private UserRepository userRepository;
-
     @Mock
     private ChallengeAttemptRepository attemptRepository;
-
     @Mock
-    private GamificationServiceClient gameClient;
+    private ChallengeEventPub eventPub;
 
     @BeforeEach
     public void setUp() {
         challengeService = new ChallengeServiceImpl(
                 userRepository,
                 attemptRepository,
-                gameClient
+                eventPub
         );
     }
 
@@ -58,7 +55,7 @@ public class ChallengeServiceTest {
         then(resultAttempt.isCorrect()).isTrue();
         verify(userRepository).save(new User("john_doe"));
         verify(attemptRepository).save(resultAttempt);
-        verify(gameClient).sendAttempt(resultAttempt);
+        verify(eventPub).challengeSolved(resultAttempt);
     }
 
     @Test
@@ -77,7 +74,7 @@ public class ChallengeServiceTest {
         then(resultAttempt.isCorrect()).isFalse();
         verify(userRepository).save(new User("john_doe"));
         verify(attemptRepository).save(resultAttempt);
-        verify(gameClient).sendAttempt(resultAttempt);
+        verify(eventPub).challengeSolved(resultAttempt);
     }
 
     @Test
@@ -100,7 +97,7 @@ public class ChallengeServiceTest {
         then(resultAttempt.getUser()).isEqualTo(existingUser);
         verify(userRepository, never()).save(any());
         verify(attemptRepository).save(resultAttempt);
-        verify(gameClient).sendAttempt(resultAttempt);
+        verify(eventPub).challengeSolved(resultAttempt);
     }
 
     @Test

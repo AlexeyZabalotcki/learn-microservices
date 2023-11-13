@@ -1,6 +1,87 @@
 version: '3.5'
 services:
 
+  frontend:
+    image: challenges-frontend:latest
+    build: ./challenges-frontend
+    ports:
+      - '3000:80'
+
+  multiplication:
+    image: multiplication:latest
+    build: multiplication
+    container_name: multiplication
+    environment:
+      - SPRING_CLOUD_CONSUL_HOST=consul
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/postgres
+    depends_on:
+      postgres:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
+#      consul-importer:
+#        condition: service_completed_successfully
+    networks:
+      - microservices
+
+  gamification:
+    image: gamification:latest
+    build: gamification
+    container_name: gamification
+    environment:
+      - SPRING_CLOUD_CONSUL_HOST=consul
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/postgres
+    depends_on:
+      postgres:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
+#      consul-importer:
+#        condition: service_completed_successfully
+    networks:
+      - microservices
+
+  gateway:
+    image: gateway:latest
+    build: gateway
+    container_name: gateway
+    ports:
+      - '8000:8000'
+    environment:
+      - SPRING_CLOUD_CONSUL_HOST=consul
+    depends_on:
+      rabbitmq:
+        condition: service_started
+    networks:
+      - microservices
+
+#  consul-importer:
+#    image: consul-importer:latest
+#    build: ./consul
+#    depends_on:
+#      - consul-dev
+#    networks:
+#      - microservices
+
+  consul-dev:
+    image: consul:1.9
+    container_name: consul
+    ports:
+      - '8500:8500'
+      - '8600:8600/udp'
+    command: 'agent -dev -node=learnmicro -client=0.0.0.0 -log-level=INFO'
+    networks:
+      - microservices
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+    networks:
+      - microservices
+
   postgres:
     container_name: postgres
     image: postgres
@@ -12,7 +93,7 @@ services:
     ports:
       - "5432:5432"
     networks:
-      - postgres
+      - microservices
 
   pgadmin:
     container_name: pgadmin
@@ -21,19 +102,12 @@ services:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin4@pgadmin.org}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
       PGADMIN_CONFIG_SERVER_MODE: 'False'
-    volumes:
-      - pgadmin:/var/lib/pgadmin
-
     ports:
       - "5050:80"
     networks:
-      - postgres
+      - microservices
     restart: unless-stopped
 
 networks:
-  postgres:
-   driver: bridge
-
-volumes:
- postgres:
- pgadmin:
+  microservices:
+    driver: bridge

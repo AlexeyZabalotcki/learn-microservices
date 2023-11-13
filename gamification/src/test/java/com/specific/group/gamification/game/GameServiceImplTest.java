@@ -1,8 +1,6 @@
 package com.specific.group.gamification.game;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-import com.specific.group.gamification.challenge.ChallengeSolvedDTO;
+import com.specific.group.gamification.challenge.ChallengeSolvedEvent;
 import com.specific.group.gamification.game.badgeprocessors.BadgeProcessor;
 import com.specific.group.gamification.game.domain.BadgeCard;
 import com.specific.group.gamification.game.domain.BadgeType;
@@ -45,7 +43,7 @@ public class GameServiceImplTest {
     public void processCorrectAttemptTest() {
         // given
         long userId = 1L, attemptId = 10L;
-        var attempt = new ChallengeSolvedDTO(attemptId, true, 20, 70, userId, "john");
+        var attempt = new ChallengeSolvedEvent(attemptId, true, 20, 70, userId, "john");
         ScoreCard scoreCard = new ScoreCard(userId, attemptId);
         given(scoreRepository.getTotalScoreForUser(userId))
                 .willReturn(Optional.of(10));
@@ -76,7 +74,7 @@ public class GameServiceImplTest {
     public void processWrongAttemptTest() {
         // when
         GameService.GameResult gameResult = gameService.newAttemptForUser(
-                new ChallengeSolvedDTO(10L, false, 10, 10, 1L, "john")
+                new ChallengeSolvedEvent(10L, false, 10, 10, 1L, "john")
         );
 
         // then - shouldn't score anything
